@@ -8,6 +8,9 @@ const router = Router();
 router.post("/", async (req, res) => {
     try {
         const { description, completed } = req.body;
+        if (!description || description.trim() === "") {
+            return res.status(400).send("Description cannot be empty");
+        }   
 
         const newTodo = await Pool.query(
             "INSERT INTO todos (description, completed) VALUES ($1, $2) RETURNING *",
@@ -37,10 +40,13 @@ router.put("/:id", async (req, res) => {
     try {
         const { id } = req.params;
         const { description, completed } = req.body;
+        if (!description || description.trim() === "") {
+            return res.status(400).send("Description cannot be empty");
+        }   
 
         const updatedTodo = await Pool.query(
             "UPDATE todos SET description = $1, completed = $2 WHERE todo_id = $3 RETURNING *",
-            [description, completed, id]
+            [description, completed || false , id]
         );
 
         if (updatedTodo.rows.length === 0) {
